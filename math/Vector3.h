@@ -55,14 +55,14 @@ public:
 
     double &operator[](int index);
 
-    double dot(const Vector3 &vec1, const Vector3 &vec2);
-
     Vector3 max(const Vector3 &vector3) const;
 
     float max() const;
+
+     std::string to_str();
 };
 
 Vector3 operator*(const double &d, const Vector3 &vector3);
 
-std::ostream &operator<<(std::ostream &strm, const Vector3 &vector3);
+std::ostream &operator<<(std::ostream &strm, Vector3 &vector3);
 #endif //GRIDLIGHT_RAST_VECTOR3_H

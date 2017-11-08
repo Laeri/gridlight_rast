@@ -25,6 +25,7 @@ function main_state:init()
     p1.x = 0;
     p1.y = 0;
     p1.z = 0;
+
     p2 = Vector3.new();
     p2.x = 3;
     p2.y = 0;

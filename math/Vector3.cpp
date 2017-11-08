@@ -117,6 +117,10 @@ double &Vector3::operator[](int index) {
     return z;
 }
 
+std::string Vector3::to_str() {
+    return "Vector3(" + std::to_string(this->x) + "," + std::to_string(this->y) + "," + std::to_string(this->z) + ")";
+}
+
 std::ostream &operator<<(std::ostream &strm, const Vector3 &vector3) {
     return strm << "Vector3(" << vector3.x << "," << vector3.y << "," << vector3.z << ")";
 }

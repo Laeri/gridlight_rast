@@ -72,3 +72,8 @@ void Vector2::add_scaled(Vector2 &vec2, float scale) {
     x += vec2.x * scale;
     y += vec2.y * scale;
 }
+
+void Vector2::scale(float t) {
+    x *= t;
+    y *= t;
+}
