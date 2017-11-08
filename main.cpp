@@ -5,6 +5,7 @@
 #include "math/Vector2.h"
 #include "math/Matrix4.h"
 #include "math/Matrix3.h"
+#include "renderer/Renderer.h"
 
 int main() {
 
@@ -62,29 +63,11 @@ int main() {
 
     lua["state"]["init"](lua["state"]);
 
+    Renderer renderer = Renderer(&lua);
 
-    Model &m = lua["state"]["model"];
-    std::cout << m.get_positions().size() << std::endl;
+    renderer.init();
+    renderer.run();
 
-
-    // test values until matrices are set
-    lua["vertex_shader"]["position"] = 10;
-    lua["vertex_shader"]["projection"] = lua["state"]["projection"];
-    lua["vertex_shader"]["model_view"] = lua["state"]["model_view"];
-    // lua["vertex_shader"]["main"](lua["vertex_shader"]);
-
-    lua["fragment_shader"]["color"] = lua["vertex_shader"]["color"];
-    //  lua["fragment_shader"]["main"](lua["fragment_shader"]);
-    bool running = true;
-    float delta = 0;
-    while (delta < 10) {
-        delta += 1;
-        // check input
-        lua["state"]["render"](lua["state"], delta, delta);
-        lua.script_file("./scripts/run_shaders.lua");
-    }
-
-    lua["state"]["close"](lua["state"]);
 
     return 0;
 }
