@@ -8,6 +8,17 @@ set(SOURCE_FILES main.cpp)
 add_executable(gridlight_rast ${SOURCE_FILES})
 
 
+SET( CMAKE_CXX_FLAGS '-llua')
+include_directories("include/")
+find_package(Lua51 REQUIRED)
+file(GLOB SOURCES
+        include/*.h
+        include/*.c
+        include/*.cpp
+        include/*.h
+        include/*.cpp
+        )
+
 INCLUDE(FindPkgConfig)
 
 PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2)
