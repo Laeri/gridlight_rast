@@ -26,7 +26,10 @@ int main() {
                               "normalize", &Vector3::normalize, "length", &Vector3::length, "dot", &Vector3::dot,
                               sol::meta_function::addition, &Vector3::operator+, sol::meta_function::subtraction,
                               &Vector3::operator-, "to_str", &Vector3::to_str, sol::meta_function::index,
-                              &Vector3::operator[]
+                              &Vector3::operator[], sol::meta_function::multiplication,
+                              sol::overload(sol::resolve<Vector3(const Vector3 &)>(&Vector3::operator*),
+                                            sol::resolve<Vector3(const double &)>(&Vector3::operator*),
+                                            sol::resolve<Vector3(const double &, const Vector3 &)>(&operator*))
     );
 
     lua.new_usertype<Vector4>("Vector4", "x", &Vector4::x, "y", &Vector4::y, "z", &Vector4::z, "w", &Vector4::w,
@@ -56,6 +59,7 @@ int main() {
     lua.new_usertype<Model>("Model", "positions", &Model::positions, "indices", &Model::indices, "set_positions",
                             &Model::set_positions, "set_indices", &Model::set_indices);
 
+    lua.new_usertype<Renderer>("Renderer", "draw", &Renderer::draw);
 
     lua.script_file("./scripts/setup.lua");
     lua.script_file("./scripts/main.lua");
@@ -64,7 +68,7 @@ int main() {
     lua["state"]["init"](lua["state"]);
 
     Renderer renderer = Renderer(&lua);
-
+    lua["renderer"] = renderer;
     renderer.init();
     renderer.run();
 

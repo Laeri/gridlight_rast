@@ -16,6 +16,7 @@ vertex_shader = {
     gl_position,
     main = function(self)
         print("run vertex shader");
+        print(self.position.x)
         self.gl_position = self.projection * self.model_view * self.position;
         self.color =  111;
     end

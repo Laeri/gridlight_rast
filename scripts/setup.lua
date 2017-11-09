@@ -12,8 +12,11 @@ State = {
     close = function(self) print("close") end,
     update = function(self, delta) print("update") end,
     draw = function(self, renderer) print("draw") end,
-    render = function(self, renderer, delta) self:update(delta); self:draw(renderer); end,
+    render = function(self, renderer, delta) self:update(renderer,delta); self:draw(renderer); end,
 }
+
+Renderer.uniforms = {};
+
 
 function State:new(o)
     o = o or {}
@@ -21,3 +24,17 @@ function State:new(o)
     self.__index = self
     return o
 end
+
+
+function Renderer:set_uniform(name, value)
+    print("set uniform");
+    self.uniforms[name] = value;
+end
+
+
+function Renderer:clear()
+    Renderer.uniforms = {};
+end
+
+
+

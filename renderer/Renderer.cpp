@@ -46,16 +46,54 @@ void Renderer::run() {
     Uint32 last = 0;
     float delta = 0;
     float timer = 0;
+
     while (!quit) {
         SDL_FillRect(screenSurface, NULL, SDL_MapRGB(screenSurface->format, 0x00, 0x00, 0x00));
         last = current;
         current = SDL_GetTicks();
         delta = ((float) (current - last) / 1000);
         timer += delta;
-        std::cout << std::to_string(timer) << std::endl;
+        //std::cout << std::to_string(timer) << std::endl;
+
+        // clear old uniforms/render state
+        (*lua)["renderer"]["clear"](*this);
+        // update current state
+        (*lua)["state"]["render"]((*lua)["state"], *this, delta);
+        // draw collected items
+        while (!render_queue.empty()) {
+            Model &model = *render_queue.front();
+            render_queue.pop();
+            auto& positions = model.get_positions();
+            auto& indices = model.get_indices();
+            for (int i = 0; i < indices.size(); i += 3) {
+                auto &vec1 = positions[indices[i]];
+                auto &vec2 = positions[indices[i+1]];
+                auto &vec3 = positions[indices[i+3]];
+                (*lua)["vertex_shader"]["projection"] = 3;
+                (*lua)["vertex_shader"]["model_view"] = 3;
+                (*lua)["vertex_shader"]["position"] = vec1;
+                (*lua)["vertex_shader"]["main"]((*lua)["vertex_shader"]);
+
+                Vector3 pos1 = (*lua)["vertex_shader"]["gl_position"];
+
+                (*lua)["vertex_shader"]["position"] = vec2;
+                (*lua)["vertex_shader"]["main"]((*lua)["vertex_shader"]);
+                Vector3 pos2 = (*lua)["vertex_shader"]["gl_position"];
+
+                (*lua)["vertex_shader"]["position"] = vec3;
+                (*lua)["vertex_shader"]["main"]((*lua)["vertex_shader"]);
+                Vector3 pos3 = (*lua)["vertex_shader"]["gl_position"];
+
+            }
+        }
+
         SDL_UpdateWindowSurface(window);
     }
     SDL_DestroyWindow(window);
 
     SDL_Quit();
+}
+
+void Renderer::draw(Model *model) {
+    render_queue.push(model);
 }
