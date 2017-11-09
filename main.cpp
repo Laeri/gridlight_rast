@@ -34,10 +34,12 @@ int main() {
 
     lua.new_usertype<Vector4>("Vector4", "x", &Vector4::x, "y", &Vector4::y, "z", &Vector4::z, "w", &Vector4::w,
                               "normalize", &Vector4::normalize, "length", &Vector4::length, "dot", &Vector4::dot,
-                              "xyz", &Vector4::xyz, "is_point", &Vector4::isPoint, "is_vector", &Vector4::isVector,
-
+                              "xyz", &Vector4::xyz,
                               sol::meta_function::addition, &Vector4::operator+, sol::meta_function::subtraction,
-                              &Vector4::operator-, sol::meta_function::index, &Vector4::operator[]
+                              &Vector4::operator-, sol::meta_function::index, &Vector4::operator[],sol::meta_function::multiplication,
+                              sol::overload(sol::resolve<Vector4(const Vector4 &)>(&Vector4::operator*),
+                                            sol::resolve<Vector4(const double &)>(&Vector4::operator*),
+                                            sol::resolve<Vector4(const double &, const Vector4 &)>(&operator*))
     );
 
     lua.new_usertype<Matrix3>("Matrix3", "invert", &Matrix3::invert, "transform", &Matrix3::transform, "det",

@@ -96,6 +96,10 @@ bool Vector4::isVector() {
     return w == 0;
 }
 
+Vector4 Vector4::operator*(const double &d) {
+    return Vector4(this->x * d, this->y * d, this->z * d, this->w * d);
+}
+
 std::ostream &operator<<(std::ostream &strm, const Vector4 &vector4) {
     return strm << "Vector4(" << vector4.x << "," << vector4.y << "," << vector4.z << "," << vector4.w << ")";
 }

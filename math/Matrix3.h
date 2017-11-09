@@ -49,6 +49,8 @@ public:
 
     void transform(Vector3 &vector);
 
+    void transpose();
+
     Vector3 &operator[](int row);
 
     void set_row(int row, Vector3 vector);

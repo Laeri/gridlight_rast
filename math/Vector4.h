@@ -31,6 +31,8 @@ public:
 
     Vector4 operator*(const Vector4 &vector4);
 
+    Vector4 operator*(const double &d);
+
     Vector4 &operator*=(const Vector4 &vector4);
 
     Vector4 operator/(const Vector4 &vector4);

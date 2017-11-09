@@ -183,6 +183,14 @@ Vector3 &Matrix3::operator[](int row) {
     return rows[row];
 }
 
+void Matrix3::transpose() {
+    Matrix3 tmp;
+    tmp.set_column(0, rows[0]);
+    tmp.set_column(1, rows[1]);
+    tmp.set_column(2, rows[2]);
+    set(tmp);
+}
+
 std::ostream &operator<<(std::ostream &strm, Matrix3 &matrix3) {
     strm << "Matrix4(" << std::endl;
     for (int y = 0; y < Matrix3::DIM; y++) {

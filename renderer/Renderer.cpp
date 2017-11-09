@@ -8,6 +8,8 @@
 #include <SDL.h>
 #include <iostream>
 #include "Renderer.h"
+#include "../math/Matrix4.h"
+#include "../math/Matrix3.h"
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 640;
@@ -47,6 +49,8 @@ void Renderer::run() {
     float delta = 0;
     float timer = 0;
 
+
+    Matrix3 edge_matrix = Matrix3();
     while (!quit) {
         SDL_FillRect(screenSurface, NULL, SDL_MapRGB(screenSurface->format, 0x00, 0x00, 0x00));
         last = current;
@@ -71,19 +75,30 @@ void Renderer::run() {
                 auto &vec3 = positions[indices[i+3]];
                 (*lua)["vertex_shader"]["projection"] = 3;
                 (*lua)["vertex_shader"]["model_view"] = 3;
-                (*lua)["vertex_shader"]["position"] = vec1;
+                (*lua)["vertex_shader"]["position"] = Vector4(vec1.x, vec1.y, vec1.z, 1);
                 (*lua)["vertex_shader"]["main"]((*lua)["vertex_shader"]);
 
-                Vector3 pos1 = (*lua)["vertex_shader"]["gl_position"];
+                Vector4 pos1 = (*lua)["vertex_shader"]["gl_position"];
 
-                (*lua)["vertex_shader"]["position"] = vec2;
+                (*lua)["vertex_shader"]["position"] = Vector4(vec2.x, vec2.y, vec2.z, 1);
                 (*lua)["vertex_shader"]["main"]((*lua)["vertex_shader"]);
-                Vector3 pos2 = (*lua)["vertex_shader"]["gl_position"];
+                Vector4 pos2 = (*lua)["vertex_shader"]["gl_position"];
 
-                (*lua)["vertex_shader"]["position"] = vec3;
+                (*lua)["vertex_shader"]["position"] = Vector4(vec3.x, vec3.y, vec3.z, 1);
                 (*lua)["vertex_shader"]["main"]((*lua)["vertex_shader"]);
-                Vector3 pos3 = (*lua)["vertex_shader"]["gl_position"];
+                Vector4 pos3 = (*lua)["vertex_shader"]["gl_position"];
 
+                edge_matrix.set_row(0, pos1.x, pos1.y, pos1.w);
+                edge_matrix.set_row(1, pos2.x, pos2.y, pos2.w);
+                edge_matrix.set_row(2, pos3.x, pos3.y, pos3.w);
+
+                std::cout << pos1 << pos2 << pos3 << std::endl;
+
+                std::cout << "det" << edge_matrix.det() << std::endl;
+                edge_matrix.invert();
+
+                edge_matrix.transpose();
+                std::cout << edge_matrix << std::endl;
             }
         }
 
