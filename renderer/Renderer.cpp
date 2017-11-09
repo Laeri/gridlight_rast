@@ -20,6 +20,11 @@ void set_pixel(SDL_Surface *surface, int x, int y, Uint32 pixel) {
     *target_pixel = pixel;
 }
 
+int clamp(int min, int max, int value) {
+    if (value < min) return min;
+    else if (value > max) return max;
+    return value;
+}
 
 Renderer::Renderer(sol::state *lua) {
     this->lua = lua;
@@ -51,6 +56,8 @@ void Renderer::run() {
 
 
     Matrix3 edge_matrix = Matrix3();
+    bool draw_backface = true;
+
     while (!quit) {
         SDL_FillRect(screenSurface, NULL, SDL_MapRGB(screenSurface->format, 0x00, 0x00, 0x00));
         last = current;
@@ -67,12 +74,12 @@ void Renderer::run() {
         while (!render_queue.empty()) {
             Model &model = *render_queue.front();
             render_queue.pop();
-            auto& positions = model.get_positions();
-            auto& indices = model.get_indices();
+            auto &positions = model.get_positions();
+            auto &indices = model.get_indices();
             for (int i = 0; i < indices.size(); i += 3) {
                 auto &vec1 = positions[indices[i]];
-                auto &vec2 = positions[indices[i+1]];
-                auto &vec3 = positions[indices[i+3]];
+                auto &vec2 = positions[indices[i + 1]];
+                auto &vec3 = positions[indices[i + 3]];
                 (*lua)["vertex_shader"]["projection"] = 3;
                 (*lua)["vertex_shader"]["model_view"] = 3;
                 (*lua)["vertex_shader"]["position"] = Vector4(vec1.x, vec1.y, vec1.z, 1);
@@ -95,10 +102,37 @@ void Renderer::run() {
                 std::cout << pos1 << pos2 << pos3 << std::endl;
 
                 std::cout << "det" << edge_matrix.det() << std::endl;
+                float det = edge_matrix.det();
+                if (det == 0) { // triangle has no area either before or after the projection
+                    continue;
+                } else if (det < 0 && !draw_backface) {
+                    continue;
+                }
                 edge_matrix.invert();
 
                 edge_matrix.transpose();
                 std::cout << edge_matrix << std::endl;
+
+                // do homogenous division
+                pos1.x /= pos1.w;
+                pos1.y /= pos1.w;
+                pos2.x /= pos2.w;
+                pos2.y /= pos2.w;
+                pos3.x /= pos3.w;
+                pos3.y /= pos3.w;
+
+                int min_x, min_y, max_x, max_y;
+
+                min_x = (int) std::min(std::min(pos1.x, pos2.x), pos3.x);
+                min_y = (int) std::min(std::min(pos1.y, pos2.y), pos3.y);
+                max_x = (int) std::ceil(std::max(std::max(pos1.x, pos2.x), pos3.x));
+                max_y = (int) std::ceil(std::max(std::max(pos1.y, pos2.y), pos3.y));
+
+                min_x = clamp(0, SCREEN_WIDTH-1, min_x);
+                min_y = clamp(0, SCREEN_HEIGHT-1, min_y);
+                max_x = clamp(0, SCREEN_WIDTH-1, max_x);
+                max_y = clamp(0, SCREEN_HEIGHT-1, max_y);
+
             }
         }
 
