@@ -4,7 +4,7 @@ project(gridlight_rast)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(SOURCE_FILES main.cpp model/Model.cpp model/Model.h math/Vector3.cpp math/Vector3.h math/Vector4.cpp math/Vector4.h math/Matrix4.cpp math/Matrix4.h math/Vector2.cpp math/Vector2.h math/Matrix3.cpp math/Matrix3.h renderer/Renderer.cpp renderer/Renderer.h)
+set(SOURCE_FILES main.cpp model/Model.cpp model/Model.h math/Vector3.cpp math/Vector3.h math/Vector4.cpp math/Vector4.h math/Matrix4.cpp math/Matrix4.h math/Vector2.cpp math/Vector2.h math/Matrix3.cpp math/Matrix3.h renderer/Renderer.cpp renderer/Renderer.h scene/Camera.cpp scene/Camera.h)
 add_executable(gridlight_rast ${SOURCE_FILES})
 
 

@@ -128,11 +128,22 @@ void Renderer::run() {
                 max_x = (int) std::ceil(std::max(std::max(pos1.x, pos2.x), pos3.x));
                 max_y = (int) std::ceil(std::max(std::max(pos1.y, pos2.y), pos3.y));
 
-                min_x = clamp(0, SCREEN_WIDTH-1, min_x);
-                min_y = clamp(0, SCREEN_HEIGHT-1, min_y);
-                max_x = clamp(0, SCREEN_WIDTH-1, max_x);
-                max_y = clamp(0, SCREEN_HEIGHT-1, max_y);
+                min_x = clamp(0, SCREEN_WIDTH - 1, min_x);
+                min_y = clamp(0, SCREEN_HEIGHT - 1, min_y);
+                max_x = clamp(0, SCREEN_WIDTH - 1, max_x);
+                max_y = clamp(0, SCREEN_HEIGHT - 1, max_y);
 
+                Vector3 pixel_pos = Vector3();
+                for (int y = min_y; y <= max_y; y++) {
+                    for (int x = min_x; x <= max_x; x++) {
+                        pixel_pos.x = x;
+                        pixel_pos.y = y;
+                        pixel_pos.z = 1; // on screen homogenous coordinate w = 1
+                        edge_matrix.transform(pixel_pos); // after transformation alpha, beta, gamma weights in vector
+                        if(pixel_pos.x > 0 && pixel_pos.y > 0 && pixel_pos.z > 0){ // pixel position is inside triangle
+                        }
+                    }
+                }
             }
         }
 
