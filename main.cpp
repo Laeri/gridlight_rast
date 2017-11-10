@@ -63,11 +63,16 @@ int main() {
     lua.new_usertype<Model>("Model", "positions", &Model::positions, "indices", &Model::indices, "set_positions",
                             &Model::set_positions, "set_indices", &Model::set_indices);
 
-    lua.new_usertype<Renderer>("Renderer", "draw", &Renderer::draw);
+    lua.new_usertype<Renderer>("Renderer", "draw", &Renderer::draw, "set_camera", &Renderer::set_camera, "get_camera",
+                               &Renderer::get_camera);
 
     lua.new_usertype<Camera>("Camera",
                              sol::constructors<sol::types<>, sol::types<Vector4, Vector3, Vector3>, sol::types<Vector3, Vector3, Vector3>>(),
-                             "update", &Camera::update, "get_world_to_camera", &Camera::get_world_to_camera);
+                             "update", &Camera::update, "world_to_camera", &Camera::get_world_to_camera);
+
+    lua.new_usertype<Frustum>("Frustum", sol::constructors<sol::types<>, sol::types<double, double, double, double>>(),
+                              "update", &Frustum::update, "get_projection", &Frustum::get_projection);
+
     lua.script_file("./scripts/setup.lua");
     lua.script_file("./scripts/main.lua");
     lua.script_file("./scripts/test_shaders.lua");

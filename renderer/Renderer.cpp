@@ -13,6 +13,10 @@
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 640;
+Matrix4 viewport_matrix;
+
+std::vector<double> zbuffer = std::vector<double>((SCREEN_WIDTH - 1) * (SCREEN_HEIGHT - 1),
+                                                  -1 * std::numeric_limits<double>::max());
 
 void set_pixel(SDL_Surface *surface, int x, int y, Uint32 pixel) {
     Uint32 *target_pixel = (Uint32 *) ((Uint8 *) surface->pixels + y * surface->pitch +
@@ -43,6 +47,24 @@ void Renderer::init() {
         }
     }
 
+    viewport_matrix = Matrix4();
+    viewport_matrix.set_identity();
+    int x0 = 0;
+    int x1 = SCREEN_WIDTH - 1;
+    int y0 = 0;
+    int y1 = SCREEN_HEIGHT - 1;
+    std::vector<double> values = {
+            (x1 - x0) / 2.0, 0, 0, (x0 + x1) / 2.0,
+            0, (y1 - y0) / 2.0, 0, (y0 + y1) / 2.0,
+            0, 0, 0.5, 0.5,
+            0, 0, 0, 1
+    };
+    viewport_matrix.set(values);
+
+    camera = new Camera();
+    frustum = new Frustum();
+
+
 }
 
 void Renderer::run() {
@@ -59,13 +81,12 @@ void Renderer::run() {
     bool draw_backface = true;
 
     while (!quit) {
+        zbuffer.assign(zbuffer.size(), -1 * std::numeric_limits<double>::max());
         SDL_FillRect(screenSurface, NULL, SDL_MapRGB(screenSurface->format, 0x00, 0x00, 0x00));
         last = current;
         current = SDL_GetTicks();
         delta = ((float) (current - last) / 1000);
         timer += delta;
-        //std::cout << std::to_string(timer) << std::endl;
-
         // clear old uniforms/render state
         (*lua)["renderer"]["clear"](*this);
         // update current state
@@ -140,7 +161,8 @@ void Renderer::run() {
                         pixel_pos.y = y;
                         pixel_pos.z = 1; // on screen homogenous coordinate w = 1
                         edge_matrix.transform(pixel_pos); // after transformation alpha, beta, gamma weights in vector
-                        if(pixel_pos.x > 0 && pixel_pos.y > 0 && pixel_pos.z > 0){ // pixel position is inside triangle
+                        if (pixel_pos.x > 0 && pixel_pos.y > 0 &&
+                            pixel_pos.z > 0) { // pixel position is inside triangle
                         }
                     }
                 }
@@ -156,4 +178,20 @@ void Renderer::run() {
 
 void Renderer::draw(Model *model) {
     render_queue.push(model);
+}
+
+void Renderer::set_camera(Camera *camera) {
+    this->camera = camera;
+}
+
+Camera &Renderer::get_camera() {
+    return *camera;
+}
+
+void Renderer::set_frustum(Frustum *frustum) {
+    this->frustum = frustum;
+}
+
+Frustum &Renderer::get_frustum() {
+    return *frustum;
 }
