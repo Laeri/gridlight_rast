@@ -56,7 +56,10 @@ int main() {
                                             sol::resolve<void(Vector4 &)>(
                                                     &Matrix4::transform)),
                               sol::meta_function::addition, &Matrix4::operator+, sol::meta_function::subtraction,
-                              &Matrix4::operator-, sol::meta_function::index, &Matrix4::operator[]
+                              &Matrix4::operator-, sol::meta_function::index, &Matrix4::operator[],
+                              sol::meta_function::multiplication,
+                              sol::overload(sol::resolve<Matrix4(Matrix4 &)>(&Matrix4::operator*),
+                                            sol::resolve<Vector4(const Vector4 &)>(&Matrix4::operator*))
     );
 
 
@@ -64,7 +67,7 @@ int main() {
                             &Model::set_positions, "set_indices", &Model::set_indices);
 
     lua.new_usertype<Renderer>("Renderer", "draw", &Renderer::draw, "set_camera", &Renderer::set_camera, "get_camera",
-                               &Renderer::get_camera);
+                               &Renderer::get_camera, "get_frustum", &Renderer::get_frustum);
 
     lua.new_usertype<Camera>("Camera",
                              sol::constructors<sol::types<>, sol::types<Vector4, Vector3, Vector3>, sol::types<Vector3, Vector3, Vector3>>(),

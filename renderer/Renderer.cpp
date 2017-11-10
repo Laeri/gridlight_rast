@@ -63,8 +63,6 @@ void Renderer::init() {
 
     camera = new Camera();
     frustum = new Frustum();
-
-
 }
 
 void Renderer::run() {
@@ -101,8 +99,14 @@ void Renderer::run() {
                 auto &vec1 = positions[indices[i]];
                 auto &vec2 = positions[indices[i + 1]];
                 auto &vec3 = positions[indices[i + 3]];
-                (*lua)["vertex_shader"]["projection"] = 3;
-                (*lua)["vertex_shader"]["model_view"] = 3;
+               // (*lua)["vertex_shader"]["projection"] = 3;
+                //(*lua)["vertex_shader"]["model_view"] = 3;
+                sol::table uniforms = (*lua)["renderer"]["uniforms"];
+                for(auto &t: uniforms){
+                    sol::object name = t.first;
+                    sol::object value = t.second;
+                    (*lua)["vertex_shader"][name] = value;
+                }
                 (*lua)["vertex_shader"]["position"] = Vector4(vec1.x, vec1.y, vec1.z, 1);
                 (*lua)["vertex_shader"]["main"]((*lua)["vertex_shader"]);
 

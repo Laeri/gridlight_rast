@@ -38,7 +38,8 @@ end
 
 function main_state:update(renderer,delta)
     print("main_update","");
-    renderer:set_uniform("TEST", 444);
+    renderer:set_uniform("projection", renderer:get_frustum():get_projection());
+    renderer:set_uniform("model_view", renderer:get_camera():world_to_camera());
     renderer:draw(self.model);
 end
 
