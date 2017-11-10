@@ -6,15 +6,15 @@
 
 
 Camera::Camera() {
-    position = Vector4(0,0,10,1);
+    position = Vector4(0, 0, 10, 1);
     u = Vector3(1, 0, 0);
     v = Vector3(0, 1, 0);
     w = Vector3(0, 0, 1);
     update();
 }
 
-Camera::Camera(Vector4 position, Vector3 up, Vector3 look_at){
-    this-> position = position;
+Camera::Camera(Vector4 position, Vector3 up, Vector3 look_at) {
+    this->position = position;
 
     w = look_at;
     w.scale(-1);
@@ -36,6 +36,21 @@ void Camera::update() {
     camera_matrix.invert();
 }
 
-Matrix4& Camera::get_world_to_camera() {
+Matrix4 &Camera::get_world_to_camera() {
     return camera_matrix;
+}
+
+Camera::Camera(Vector3 position, Vector3 up, Vector3 look_at) {
+    this->position.x = position.x;
+    this->position.y = position.y;
+    this->position.z = position.z;
+    this->position.w = 1;
+
+    w = look_at;
+    w.scale(-1);
+    w.normalize();
+    u = up.cross(w);
+    u.normalize();
+    v = w.cross(u);
+    update();
 }

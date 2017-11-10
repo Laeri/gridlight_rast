@@ -16,6 +16,7 @@ private:
 public:
     Camera();
     Camera(Vector4 position, Vector3 up, Vector3 look_at);
+    Camera(Vector3 position, Vector3 up, Vector3 look_at);
     void update();
     Matrix4 &get_world_to_camera();
 };

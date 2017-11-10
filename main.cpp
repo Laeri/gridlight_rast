@@ -6,6 +6,7 @@
 #include "math/Matrix4.h"
 #include "math/Matrix3.h"
 #include "renderer/Renderer.h"
+#include "scene/Camera.h"
 
 int main() {
 
@@ -36,7 +37,8 @@ int main() {
                               "normalize", &Vector4::normalize, "length", &Vector4::length, "dot", &Vector4::dot,
                               "xyz", &Vector4::xyz,
                               sol::meta_function::addition, &Vector4::operator+, sol::meta_function::subtraction,
-                              &Vector4::operator-, sol::meta_function::index, &Vector4::operator[],sol::meta_function::multiplication,
+                              &Vector4::operator-, sol::meta_function::index, &Vector4::operator[],
+                              sol::meta_function::multiplication,
                               sol::overload(sol::resolve<Vector4(const Vector4 &)>(&Vector4::operator*),
                                             sol::resolve<Vector4(const double &)>(&Vector4::operator*),
                                             sol::resolve<Vector4(const double &, const Vector4 &)>(&operator*))
@@ -63,6 +65,9 @@ int main() {
 
     lua.new_usertype<Renderer>("Renderer", "draw", &Renderer::draw);
 
+    lua.new_usertype<Camera>("Camera",
+                             sol::constructors<sol::types<>, sol::types<Vector4, Vector3, Vector3>, sol::types<Vector3, Vector3, Vector3>>(),
+                             "update", &Camera::update, "get_world_to_camera", &Camera::get_world_to_camera);
     lua.script_file("./scripts/setup.lua");
     lua.script_file("./scripts/main.lua");
     lua.script_file("./scripts/test_shaders.lua");
