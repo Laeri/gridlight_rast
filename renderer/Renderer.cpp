@@ -55,7 +55,7 @@ void Renderer::init() {
     int y1 = SCREEN_HEIGHT - 1;
     std::vector<double> values = {
             (x1 - x0) / 2.0, 0, 0, (x0 + x1) / 2.0,
-            0, (y1 - y0) / 2.0, 0, (y0 + y1) / 2.0,
+            0, -(y1 - y0) / 2.0, 0, (y0 + y1) / 2.0,
             0, 0, 0.5, 0.5,
             0, 0, 0, 1
     };
@@ -98,7 +98,7 @@ void Renderer::run() {
             for (int i = 0; i < indices.size(); i += 3) {
                 auto &vec1 = positions[indices[i]];
                 auto &vec2 = positions[indices[i + 1]];
-                auto &vec3 = positions[indices[i + 3]];
+                auto &vec3 = positions[indices[i + 2]];
                // (*lua)["vertex_shader"]["projection"] = 3;
                 //(*lua)["vertex_shader"]["model_view"] = 3;
                 sol::table uniforms = (*lua)["renderer"]["uniforms"];
@@ -107,24 +107,35 @@ void Renderer::run() {
                     sol::object value = t.second;
                     (*lua)["vertex_shader"][name] = value;
                 }
-                (*lua)["vertex_shader"]["position"] = Vector4(vec1.x, vec1.y, vec1.z, 1);
+                Vector4 pos1 = Vector4(vec1.x, vec1.y, vec1.z, 1);
+                Vector4 pos2 = Vector4(vec2.x, vec2.y, vec2.z, 1);
+                Vector4 pos3 = Vector4(vec3.x, vec3.y, vec3.z, 1);
+
+
+                (*lua)["vertex_shader"]["position"] = pos1;
                 (*lua)["vertex_shader"]["main"]((*lua)["vertex_shader"]);
 
-                Vector4 pos1 = (*lua)["vertex_shader"]["gl_position"];
+                pos1 = (*lua)["vertex_shader"]["gl_position"];
 
-                (*lua)["vertex_shader"]["position"] = Vector4(vec2.x, vec2.y, vec2.z, 1);
-                (*lua)["vertex_shader"]["main"]((*lua)["vertex_shader"]);
-                Vector4 pos2 = (*lua)["vertex_shader"]["gl_position"];
 
-                (*lua)["vertex_shader"]["position"] = Vector4(vec3.x, vec3.y, vec3.z, 1);
+                (*lua)["vertex_shader"]["position"] = pos2;
                 (*lua)["vertex_shader"]["main"]((*lua)["vertex_shader"]);
-                Vector4 pos3 = (*lua)["vertex_shader"]["gl_position"];
+                pos2 = (*lua)["vertex_shader"]["gl_position"];
+
+                (*lua)["vertex_shader"]["position"] = pos3;
+                (*lua)["vertex_shader"]["main"]((*lua)["vertex_shader"]);
+                pos3 = (*lua)["vertex_shader"]["gl_position"];
+
+
+
+                pos1 = viewport_matrix * pos1;
+                pos2 = viewport_matrix * pos2;
+                pos3 = viewport_matrix * pos3;
 
                 edge_matrix.set_row(0, pos1.x, pos1.y, pos1.w);
                 edge_matrix.set_row(1, pos2.x, pos2.y, pos2.w);
                 edge_matrix.set_row(2, pos3.x, pos3.y, pos3.w);
 
-                std::cout << pos1 << pos2 << pos3 << std::endl;
 
                 std::cout << "det" << edge_matrix.det() << std::endl;
                 float det = edge_matrix.det();
@@ -145,6 +156,14 @@ void Renderer::run() {
                 pos2.y /= pos2.w;
                 pos3.x /= pos3.w;
                 pos3.y /= pos3.w;
+
+
+                Vector3 col = Vector3(1,1,1);
+                SDL_PixelFormat *fmt = screenSurface->format;
+                Uint32 pixel_color = SDL_MapRGB(fmt, col.x * 255, col.y * 255, col.z * 255);
+                set_pixel(screenSurface, pos1.x, pos1.y, pixel_color);
+                set_pixel(screenSurface, pos2.x, pos2.y, pixel_color);
+                set_pixel(screenSurface, pos3.x, pos3.y, pixel_color);
 
                 int min_x, min_y, max_x, max_y;
 
