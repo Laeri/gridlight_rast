@@ -50,7 +50,7 @@ int main() {
 
     lua.new_usertype<Matrix4>("Matrix4", "invert", &Matrix4::invert, "det", &Matrix4::det, "rot_x", &Matrix4::rot_x,
                               "rot_y", &Matrix4::rot_y, "rot_z", &Matrix4::rot_z, "transpose",
-                              &Matrix4::transpose, "set_scale", &Matrix4::set_scale, "set_identity",
+                              &Matrix4::transpose, "set_identity",
                               &Matrix4::set_identity, "transform",
                               sol::overload(sol::resolve<void(Vector3 &)>(&Matrix4::transform),
                                             sol::resolve<void(Vector4 &)>(
@@ -59,12 +59,13 @@ int main() {
                               &Matrix4::operator-, sol::meta_function::index, &Matrix4::operator[],
                               sol::meta_function::multiplication,
                               sol::overload(sol::resolve<Matrix4(Matrix4 &)>(&Matrix4::operator*),
-                                            sol::resolve<Vector4(const Vector4 &)>(&Matrix4::operator*))
+                                            sol::resolve<Vector4(const Vector4 &)>(&Matrix4::operator*)), "set",   sol::overload(sol::resolve<void(Matrix4&)>(&Matrix4::set),
+                                                                                                                                 sol::resolve<void(std::vector<double>)>(&Matrix4::set))
     );
 
 
     lua.new_usertype<Model>("Model", "positions", &Model::positions, "indices", &Model::indices, "set_positions",
-                            &Model::set_positions, "set_indices", &Model::set_indices);
+                            &Model::set_positions, "set_indices", &Model::set_indices, "model_matrix", &Model::model_matrix);
 
     lua.new_usertype<Renderer>("Renderer", "draw", &Renderer::draw, "set_camera", &Renderer::set_camera, "get_camera",
                                &Renderer::get_camera, "get_frustum", &Renderer::get_frustum);

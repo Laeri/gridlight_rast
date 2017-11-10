@@ -20,3 +20,8 @@ void Model::set_indices(std::vector<int> indices) {
 void Model::set_positions(std::vector<Vector3> positions) {
     this->positions = positions;
 }
+
+Model::Model() {
+    model_matrix = new Matrix4();
+    model_matrix->set_identity();
+}

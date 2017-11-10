@@ -11,13 +11,14 @@ vertex_shader = {
     position,
     normal,
     color,
-    model_view,
+    model_matrix,
+    view,
     projection,
     gl_position,
     main = function(self)
         print("run vertex shader");
         print(self.position.x)
-        self.gl_position = self.projection * self.model_view * self.position;
+        self.gl_position = self.projection * self.view * self.model_matrix * self.position;
         self.color =  111;
     end
 

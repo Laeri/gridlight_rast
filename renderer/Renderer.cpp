@@ -111,7 +111,12 @@ void Renderer::run() {
                 Vector4 pos2 = Vector4(vec2.x, vec2.y, vec2.z, 1);
                 Vector4 pos3 = Vector4(vec3.x, vec3.y, vec3.z, 1);
 
-
+                std::cout <<"model matrix: " << *model.model_matrix << std::endl;
+                Matrix4 rot = Matrix4();
+                rot.set_identity();
+                rot.rot_x(delta);
+                rot *= *model.model_matrix;
+               // model.model_matrix->set(rot);
                 (*lua)["vertex_shader"]["position"] = pos1;
                 (*lua)["vertex_shader"]["main"]((*lua)["vertex_shader"]);
 

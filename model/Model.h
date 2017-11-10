@@ -7,10 +7,12 @@
 
 #include <vector>
 #include "../math/Vector3.h"
+#include "../math/Matrix4.h"
 
 class Model {
 public:
-
+    Model();
+    Matrix4 *model_matrix;
     std::vector<Vector3> positions;
     std::vector<int> indices;
 
