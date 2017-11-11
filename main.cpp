@@ -33,7 +33,7 @@ int main() {
                                             sol::resolve<Vector3(const double &, const Vector3 &)>(&operator*))
     );
 
-    lua.new_usertype<Vector4>("Vector4", "x", &Vector4::x, "y", &Vector4::y, "z", &Vector4::z, "w", &Vector4::w,
+    lua.new_usertype<Vector4>("Vector4", sol::constructors<sol::types<>, sol::types<float, float, float, float>>(),"x", &Vector4::x, "y", &Vector4::y, "z", &Vector4::z, "w", &Vector4::w,
                               "normalize", &Vector4::normalize, "length", &Vector4::length, "dot", &Vector4::dot,
                               "xyz", &Vector4::xyz,
                               sol::meta_function::addition, &Vector4::operator+, sol::meta_function::subtraction,
@@ -59,13 +59,19 @@ int main() {
                               &Matrix4::operator-, sol::meta_function::index, &Matrix4::operator[],
                               sol::meta_function::multiplication,
                               sol::overload(sol::resolve<Matrix4(Matrix4 &)>(&Matrix4::operator*),
-                                            sol::resolve<Vector4(const Vector4 &)>(&Matrix4::operator*)), "set",   sol::overload(sol::resolve<void(Matrix4&)>(&Matrix4::set),
-                                                                                                                                 sol::resolve<void(std::vector<double>)>(&Matrix4::set))
+                                            sol::resolve<Vector4(const Vector4 &)>(&Matrix4::operator*)), "set",
+                              sol::overload(sol::resolve<void(Matrix4 &)>(&Matrix4::set),
+                                            sol::resolve<void(std::vector<double>)>(&Matrix4::set))
     );
 
+    lua.new_usertype<Vertex>("Vertex",
+                             sol::constructors<sol::types<>, sol::types<float, float, float>, sol::types<Vector3>>(),
+                             "position", &Vertex::position);
 
-    lua.new_usertype<Model>("Model", "positions", &Model::positions, "indices", &Model::indices, "set_positions",
-                            &Model::set_positions, "set_indices", &Model::set_indices, "model_matrix", &Model::model_matrix);
+
+    lua.new_usertype<Model>("Model", "vertices", &Model::vertices, "indices", &Model::indices, "set_vertices",
+                            &Model::set_vertices, "set_indices", &Model::set_indices, "model_matrix",
+                            &Model::model_matrix);
 
     lua.new_usertype<Renderer>("Renderer", "draw", &Renderer::draw, "set_camera", &Renderer::set_camera, "get_camera",
                                &Renderer::get_camera, "get_frustum", &Renderer::get_frustum);

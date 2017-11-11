@@ -5,8 +5,8 @@
 #include "Model.h"
 
 
-std::vector<Vector3> &Model::get_positions() {
-    return this->positions;
+std::vector<Vertex> &Model::get_vertices() {
+    return this->vertices;
 }
 
 std::vector<int> &Model::get_indices() {
@@ -17,8 +17,8 @@ void Model::set_indices(std::vector<int> indices) {
     this->indices = indices;
 }
 
-void Model::set_positions(std::vector<Vector3> positions) {
-    this->positions = positions;
+void Model::set_vertices(std::vector<Vertex> vertices) {
+    this->vertices = vertices;
 }
 
 Model::Model() {

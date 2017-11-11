@@ -93,12 +93,12 @@ void Renderer::run() {
         while (!render_queue.empty()) {
             Model &model = *render_queue.front();
             render_queue.pop();
-            auto &positions = model.get_positions();
+            auto &vertices = model.get_vertices();
             auto &indices = model.get_indices();
             for (int i = 0; i < indices.size(); i += 3) {
-                auto &vec1 = positions[indices[i]];
-                auto &vec2 = positions[indices[i + 1]];
-                auto &vec3 = positions[indices[i + 2]];
+                auto &vertex_0 = vertices[indices[i]];
+                auto &vertex_1 = vertices[indices[i + 1]];
+                auto &vertex_2 = vertices[indices[i + 2]];
                // (*lua)["vertex_shader"]["projection"] = 3;
                 //(*lua)["vertex_shader"]["model_view"] = 3;
                 sol::table uniforms = (*lua)["renderer"]["uniforms"];
@@ -107,27 +107,40 @@ void Renderer::run() {
                     sol::object value = t.second;
                     (*lua)["vertex_shader"][name] = value;
                 }
-                Vector4 pos1 = Vector4(vec1.x, vec1.y, vec1.z, 1);
-                Vector4 pos2 = Vector4(vec2.x, vec2.y, vec2.z, 1);
-                Vector4 pos3 = Vector4(vec3.x, vec3.y, vec3.z, 1);
 
-                std::cout <<"model matrix: " << *model.model_matrix << std::endl;
+
+                Vector4 pos1 = Vector4(vertex_0.position.x, vertex_0.position.y, vertex_0.position.z, 1);
+                Vector4 pos2 = Vector4(vertex_1.position.x, vertex_1.position.y, vertex_1.position.z, 1);
+                Vector4 pos3 = Vector4(vertex_2.position.x, vertex_2.position.y, vertex_2.position.z, 1);
+
                 Matrix4 rot = Matrix4();
                 rot.set_identity();
                 rot.rot_x(delta);
                 rot *= *model.model_matrix;
                // model.model_matrix->set(rot);
                 (*lua)["vertex_shader"]["position"] = pos1;
+                //sol::table members = (*lua)[vertex_0]["members"];
+                //for(auto& m: members){
+                  //  (*lua)["vertex_shader"][m.first] = m.second;
+                //}
                 (*lua)["vertex_shader"]["main"]((*lua)["vertex_shader"]);
 
                 pos1 = (*lua)["vertex_shader"]["gl_position"];
 
 
                 (*lua)["vertex_shader"]["position"] = pos2;
+               //  members = (*lua)[vertex_1]["members"];
+                //for(auto& m: members){
+                  //  (*lua)["vertex_shader"][m.first] = m.second;
+                //}
                 (*lua)["vertex_shader"]["main"]((*lua)["vertex_shader"]);
                 pos2 = (*lua)["vertex_shader"]["gl_position"];
 
                 (*lua)["vertex_shader"]["position"] = pos3;
+                 //members = (*lua)[vertex_2]["members"];
+                //for(auto& m: members){
+                    //(*lua)["vertex_shader"][m.first] = m.second;
+                //}
                 (*lua)["vertex_shader"]["main"]((*lua)["vertex_shader"]);
                 pos3 = (*lua)["vertex_shader"]["gl_position"];
 
@@ -142,8 +155,7 @@ void Renderer::run() {
                 edge_matrix.set_row(2, pos3.x, pos3.y, pos3.w);
 
 
-                std::cout << "det" << edge_matrix.det() << std::endl;
-                float det = edge_matrix.det();
+                double det = edge_matrix.det();
                 if (det == 0) { // triangle has no area either before or after the projection
                     continue;
                 } else if (det < 0 && !draw_backface) {
@@ -183,14 +195,19 @@ void Renderer::run() {
                 max_y = clamp(0, SCREEN_HEIGHT - 1, max_y);
 
                 Vector3 pixel_pos = Vector3();
+                Vector3 weights = Vector3();
                 for (int y = min_y; y <= max_y; y++) {
                     for (int x = min_x; x <= max_x; x++) {
                         pixel_pos.x = x;
                         pixel_pos.y = y;
                         pixel_pos.z = 1; // on screen homogenous coordinate w = 1
-                        edge_matrix.transform(pixel_pos); // after transformation alpha, beta, gamma weights in vector
-                        if (pixel_pos.x > 0 && pixel_pos.y > 0 &&
-                            pixel_pos.z > 0) { // pixel position is inside triangle
+                        weights = Vector3(pixel_pos);
+                        edge_matrix.transform(weights); // after transformation alpha, beta, gamma weights in vector
+                        if (weights.x > 0 && weights.y > 0 &&
+                            weights.z > 0) { // pixel position is inside triangle
+
+                            Uint32 pixel_color = SDL_MapRGB(fmt, col.x * 255, col.y * 255, col.z * 255);
+                            set_pixel(screenSurface, pixel_pos.x, pixel_pos.y, pixel_color);
                         }
                     }
                 }

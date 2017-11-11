@@ -17,6 +17,11 @@ State = {
 
 Renderer.uniforms = {};
 
+Vertex.members = {};
+
+function Vertex:set_member(name, value)
+end
+
 
 function State:new(o)
     o = o or {}

@@ -8,19 +8,20 @@
 #include <vector>
 #include "../math/Vector3.h"
 #include "../math/Matrix4.h"
+#include "Vertex.h"
 
 class Model {
 public:
     Model();
     Matrix4 *model_matrix;
-    std::vector<Vector3> positions;
+    std::vector<Vertex> vertices;
     std::vector<int> indices;
 
-    std::vector<Vector3> &get_positions();
+    std::vector<Vertex> &get_vertices();
 
     std::vector<int> &get_indices();
 
-    void set_positions(std::vector<Vector3> positions);
+    void set_vertices(std::vector<Vertex> vertices);
 
     void set_indices(std::vector<int> indices);
 };
