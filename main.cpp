@@ -66,7 +66,7 @@ int main() {
 
     lua.new_usertype<Vertex>("Vertex",
                              sol::constructors<sol::types<>, sol::types<float, float, float>, sol::types<Vector3>>(),
-                             "position", &Vertex::position);
+                             "position", &Vertex::position, "members", &Vertex::members);
 
 
     lua.new_usertype<Model>("Model", "vertices", &Model::vertices, "indices", &Model::indices, "set_vertices",

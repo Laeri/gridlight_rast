@@ -96,13 +96,13 @@ void Renderer::run() {
             auto &vertices = model.get_vertices();
             auto &indices = model.get_indices();
             for (int i = 0; i < indices.size(); i += 3) {
-                auto &vertex_0 = vertices[indices[i]];
-                auto &vertex_1 = vertices[indices[i + 1]];
-                auto &vertex_2 = vertices[indices[i + 2]];
-               // (*lua)["vertex_shader"]["projection"] = 3;
+                auto &vertex_0 = *vertices[indices[i]];
+                auto &vertex_1 = *vertices[indices[i + 1]];
+                auto &vertex_2 = *vertices[indices[i + 2]];
+                // (*lua)["vertex_shader"]["projection"] = 3;
                 //(*lua)["vertex_shader"]["model_view"] = 3;
                 sol::table uniforms = (*lua)["renderer"]["uniforms"];
-                for(auto &t: uniforms){
+                for (auto &t: uniforms) {
                     sol::object name = t.first;
                     sol::object value = t.second;
                     (*lua)["vertex_shader"][name] = value;
@@ -113,37 +113,42 @@ void Renderer::run() {
                 Vector4 pos2 = Vector4(vertex_1.position.x, vertex_1.position.y, vertex_1.position.z, 1);
                 Vector4 pos3 = Vector4(vertex_2.position.x, vertex_2.position.y, vertex_2.position.z, 1);
 
+
                 Matrix4 rot = Matrix4();
                 rot.set_identity();
                 rot.rot_x(delta);
                 rot *= *model.model_matrix;
-               // model.model_matrix->set(rot);
+                // model.model_matrix->set(rot);
+                for (auto &m : vertex_0.members) {
+                    std::cout << "member: " << m.first << std::endl;
+                    (*lua)["vertex_shader"][m.first] = m.second;
+                }
                 (*lua)["vertex_shader"]["position"] = pos1;
-                //sol::table members = (*lua)[vertex_0]["members"];
-                //for(auto& m: members){
-                  //  (*lua)["vertex_shader"][m.first] = m.second;
-                //}
                 (*lua)["vertex_shader"]["main"]((*lua)["vertex_shader"]);
 
                 pos1 = (*lua)["vertex_shader"]["gl_position"];
+                Vector4 test_color1 = (*lua)["vertex_shader"]["color"];
 
 
+                for (auto &m : vertex_1.members) {
+                    std::cout << "member: " << m.first << std::endl;
+
+                    (*lua)["vertex_shader"][m.first] = m.second;
+                }
                 (*lua)["vertex_shader"]["position"] = pos2;
-               //  members = (*lua)[vertex_1]["members"];
-                //for(auto& m: members){
-                  //  (*lua)["vertex_shader"][m.first] = m.second;
-                //}
                 (*lua)["vertex_shader"]["main"]((*lua)["vertex_shader"]);
                 pos2 = (*lua)["vertex_shader"]["gl_position"];
+                Vector4 test_color2 = (*lua)["vertex_shader"]["color"];
 
+
+                for (auto &m : vertex_2.members) {
+                    std::cout << "member: " << m.first << std::endl;
+                    (*lua)["vertex_shader"][m.first] = m.second;
+                }
                 (*lua)["vertex_shader"]["position"] = pos3;
-                 //members = (*lua)[vertex_2]["members"];
-                //for(auto& m: members){
-                    //(*lua)["vertex_shader"][m.first] = m.second;
-                //}
                 (*lua)["vertex_shader"]["main"]((*lua)["vertex_shader"]);
                 pos3 = (*lua)["vertex_shader"]["gl_position"];
-
+                Vector4 test_color3 = (*lua)["vertex_shader"]["color"];
 
 
                 pos1 = viewport_matrix * pos1;
@@ -154,6 +159,7 @@ void Renderer::run() {
                 edge_matrix.set_row(1, pos2.x, pos2.y, pos2.w);
                 edge_matrix.set_row(2, pos3.x, pos3.y, pos3.w);
 
+                Vector3 const_func = Vector3(1, 1, 1);
 
                 double det = edge_matrix.det();
                 if (det == 0) { // triangle has no area either before or after the projection
@@ -162,6 +168,9 @@ void Renderer::run() {
                     continue;
                 }
                 edge_matrix.invert();
+
+                edge_matrix.transform(const_func);
+
 
                 edge_matrix.transpose();
                 std::cout << edge_matrix << std::endl;
@@ -175,7 +184,7 @@ void Renderer::run() {
                 pos3.y /= pos3.w;
 
 
-                Vector3 col = Vector3(1,1,1);
+                Vector3 col = Vector3(1, 1, 1);
                 SDL_PixelFormat *fmt = screenSurface->format;
                 Uint32 pixel_color = SDL_MapRGB(fmt, col.x * 255, col.y * 255, col.z * 255);
                 set_pixel(screenSurface, pos1.x, pos1.y, pixel_color);
@@ -196,6 +205,12 @@ void Renderer::run() {
 
                 Vector3 pixel_pos = Vector3();
                 Vector3 weights = Vector3();
+
+
+                Vector3 col1 = Vector3(test_color1.x, test_color1.y, test_color1.z);
+                Vector3 col2 = Vector3(test_color2.x, test_color2.y, test_color2.z);
+                Vector3 col3 = Vector3(test_color3.x, test_color3.y, test_color3.z);
+                Vector3 final_color;
                 for (int y = min_y; y <= max_y; y++) {
                     for (int x = min_x; x <= max_x; x++) {
                         pixel_pos.x = x;
@@ -203,10 +218,12 @@ void Renderer::run() {
                         pixel_pos.z = 1; // on screen homogenous coordinate w = 1
                         weights = Vector3(pixel_pos);
                         edge_matrix.transform(weights); // after transformation alpha, beta, gamma weights in vector
+                        double oneOverW = const_func.dot(pixel_pos);
                         if (weights.x > 0 && weights.y > 0 &&
                             weights.z > 0) { // pixel position is inside triangle
-
-                            Uint32 pixel_color = SDL_MapRGB(fmt, col.x * 255, col.y * 255, col.z * 255);
+                            final_color = weights.x*col1 + weights.y * col2 + weights.z * col3;
+                            final_color /= oneOverW;
+                            Uint32 pixel_color = SDL_MapRGB(fmt, final_color.x * 255, final_color.y * 255, final_color.z * 255);
                             set_pixel(screenSurface, pixel_pos.x, pixel_pos.y, pixel_color);
                         }
                     }

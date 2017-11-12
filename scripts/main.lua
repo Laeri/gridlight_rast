@@ -16,9 +16,9 @@ function main_state:init()
     self.projection = 2;
     self.model_view = 1;
     self.model = Model.new();
-    self.c1 = Vector4.new(1,0,0,0);
-    self.c2 = Vector4.new(0,1,0,0);
-    self.c3 = Vector4.new(0,0,1,0);
+    c1 = Vector4.new(1,0,0,0);
+    c2 = Vector4.new(0,1,0,0);
+    c3 = Vector4.new(0,0,1,0);
     p1 = Vertex.new(0,-1,0);
     p1:set_member("color", c1);
     p2 = Vertex.new(3,-1,0);

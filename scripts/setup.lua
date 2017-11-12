@@ -17,9 +17,9 @@ State = {
 
 Renderer.uniforms = {};
 
-Vertex.members = {};
 
 function Vertex:set_member(name, value)
+    self.members[name] = value;
 end
 
 

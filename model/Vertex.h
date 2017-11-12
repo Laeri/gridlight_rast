@@ -6,11 +6,14 @@
 #define GRIDLIGHT_RAST_VERTEX_H
 
 
+#include <sol.hpp>
+#include <map>
 #include "../math/Vector3.h"
 
 class Vertex {
 public:
     Vertex(Vector3 position);
+    std::map<std::string, sol::object> members = std::map<std::string, sol::object>();
     Vertex(float x, float y, float z);
     Vertex();
     Vector3 position;

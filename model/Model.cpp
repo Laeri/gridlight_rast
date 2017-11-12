@@ -5,7 +5,7 @@
 #include "Model.h"
 
 
-std::vector<Vertex> &Model::get_vertices() {
+std::vector<Vertex*> &Model::get_vertices() {
     return this->vertices;
 }
 
@@ -17,7 +17,7 @@ void Model::set_indices(std::vector<int> indices) {
     this->indices = indices;
 }
 
-void Model::set_vertices(std::vector<Vertex> vertices) {
+void Model::set_vertices(std::vector<Vertex*> vertices) {
     this->vertices = vertices;
 }
 

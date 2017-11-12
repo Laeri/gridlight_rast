@@ -14,14 +14,14 @@ class Model {
 public:
     Model();
     Matrix4 *model_matrix;
-    std::vector<Vertex> vertices;
+    std::vector<Vertex*> vertices;
     std::vector<int> indices;
 
-    std::vector<Vertex> &get_vertices();
+    std::vector<Vertex*> &get_vertices();
 
     std::vector<int> &get_indices();
 
-    void set_vertices(std::vector<Vertex> vertices);
+    void set_vertices(std::vector<Vertex*> vertices);
 
     void set_indices(std::vector<int> indices);
 };
